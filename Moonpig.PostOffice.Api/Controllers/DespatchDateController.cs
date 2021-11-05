@@ -10,26 +10,47 @@
     [Route("api/[controller]")]
     public class DespatchDateController : Controller
     {
-        public DateTime _mlt;
+        private DateTime maxLeadTime;
+        private readonly DbContext dbContext;
+
+        public DespatchDateController()
+        {
+             dbContext = new DbContext();
+        }
 
         [HttpGet]
         public DespatchDate Get(List<int> productIds, DateTime orderDate)
         {
-            _mlt = orderDate; // max lead time
-            foreach (var ID in productIds)
+            maxLeadTime = orderDate;
+
+            try
             {
-                DbContext dbContext = new DbContext();
-                var s = dbContext.Products.Single(x => x.ProductId == ID).SupplierId;
-                var lt = dbContext.Suppliers.Single(x => x.SupplierId == s).LeadTime;
-                if (orderDate.AddDays(lt) > _mlt)
-                    _mlt = orderDate.AddDays(lt);
+                foreach (var productId in productIds)
+                {
+                    var supplierId = dbContext.Products.Single(x => x.ProductId == productId).SupplierId;
+                    var leadTime = dbContext.Suppliers.Single(x => x.SupplierId == supplierId).LeadTime;
+
+                    if (orderDate.AddDays(leadTime) > maxLeadTime)
+                        maxLeadTime = orderDate.AddDays(leadTime);
+                }
             }
-            if (_mlt.DayOfWeek == DayOfWeek.Saturday)
+            catch
             {
-                return new DespatchDate { Date = _mlt.AddDays(2) };
+                // do something here to account for the linq queries
+                return new DespatchDate { Error = "Wrong" };
             }
-            else if (_mlt.DayOfWeek == DayOfWeek.Sunday) return new DespatchDate { Date = _mlt.AddDays(1) };
-            else return new DespatchDate { Date = _mlt };
+            
+
+            switch (maxLeadTime.DayOfWeek)
+            {
+                case DayOfWeek.Saturday:
+                    return new DespatchDate { Date = maxLeadTime.AddDays(2) };
+                case DayOfWeek.Sunday:
+                    return new DespatchDate { Date = maxLeadTime.AddDays(1) };
+                default:
+                    return new DespatchDate { Date = maxLeadTime };
+            }
+            
         }
     }
 }
