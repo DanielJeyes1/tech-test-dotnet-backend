@@ -37,7 +37,6 @@
             catch
             {
                 // do something here to account for the linq queries
-                return new DespatchDate { Error = "Wrong" };
             }
             
 
