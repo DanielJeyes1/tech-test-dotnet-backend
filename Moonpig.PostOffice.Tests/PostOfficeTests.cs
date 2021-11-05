@@ -12,16 +12,16 @@
         public void OneProductWithLeadTimeOfOneDay()
         {
             DespatchDateController controller = new DespatchDateController();
-            var date = controller.Get(new List<int>() {1}, DateTime.Now);
-            date.Date.Date.ShouldBe(DateTime.Now.Date.AddDays(1));
+            var date = controller.Get(new List<int>() {1}, new DateTime(2021, 11, 03));
+            date.Date.Date.ShouldBe(new DateTime(2021, 11, 03).AddDays(1));
         }
 
         [Fact]
         public void OneProductWithLeadTimeOfTwoDay()
         {
             DespatchDateController controller = new DespatchDateController();
-            var date = controller.Get(new List<int>() { 2 }, DateTime.Now);
-            date.Date.Date.ShouldBe(DateTime.Now.Date.AddDays(2));
+            var date = controller.Get(new List<int>() { 2 }, new DateTime(2021, 11, 03));
+            date.Date.Date.ShouldBe(new DateTime(2021, 11, 03).AddDays(2));
         }
 
         [Fact]
